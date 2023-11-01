@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const express = require("express");
 const Book = require("./models/book");
-
+const Author = require('./models/author');
+const Category = require('./models/category');
 const app = express();
 
 app.use(express.json());
@@ -12,7 +13,7 @@ mongoose
   .catch(() => console.log("Connexion a MongoDB échouée !!!!!!"));
 
 //add a book
-app.post("/api/books", (req, res) => {
+/*app.post("/api/books", (req, res) => {
   let newBook = new Book({
     title: req.body.title,
     ISBN: req.body.ISBN,
@@ -34,7 +35,59 @@ app.post("/api/books", (req, res) => {
         message: "Invalid data !!!",
       })
     );
+});*/
+
+app.post("/api/author", (req, res) => {
+  let newAuthor = new Author({
+    lastName: req.body.lastName,
+    firstName: req.body.firstName,
+    nationality: req.body.nationality,
+  });
+
+  newAuthor
+    .save(newAuthor)
+    .then(() =>
+      res.status(201).json({
+        model: newAuthor,
+        message: "Author Added !",
+      })
+    )
+    .catch((error) =>
+      res.status(400).json({
+        error: error.message,
+        message: "Invalid data !!!",
+      })
+    );
 });
+
+
+app.post('/api/books', async (req, res) => {
+  try {
+    const author = new Author({
+      lastName: req.body.authorLastName,
+      firstName: req.body.authorFirstName,
+      nationality: req.body.authorNationality
+    });
+    const savedAuthor = await author.save();
+
+    const categories = req.body.categories.map(categoryTitle => new Category({ title: categoryTitle }));
+    const savedCategories = await Category.insertMany(categories);
+
+    const book = new Book({
+      title: req.body.bookTitle,
+      author: savedAuthor._id,
+      categories: savedCategories.map(category => category._id)
+    });
+
+    const savedBook = await book.save();
+    res.json(savedBook);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
 
 // get all books
 app.get("/api/books", (req, res) => {
