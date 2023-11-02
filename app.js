@@ -91,7 +91,7 @@ app.post('/api/books', async (req, res) => {
 
 // get all books
 app.get("/api/books", (req, res) => {
-  Book.find()
+  Book.find().populate('author')
     .then((books) =>
       res.status(200).json({
         model: books,
@@ -108,7 +108,7 @@ app.get("/api/books", (req, res) => {
 
 // get a book by id
 app.get("/api/books/:id", (req, res) => {
-  Book.findOne({ _id: req.params.id })
+  Book.findOne({ _id: req.params.id }).populate('author')
     .then((book) => {
       if (!book) {
         res.status(404).json({
