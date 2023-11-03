@@ -62,7 +62,7 @@ app.post("/api/author", (req, res) => {
 
 app.post("/api/category", (req, res) => {
   let newCategory = new Category({
-    type: req.body.type,
+    title: req.body.title,
     
   });
 
@@ -92,19 +92,19 @@ app.post('/api/books', async (req, res) => {
       firstName: req.body.authorFirstName,
       nationality: req.body.authorNationality
     });
-    const savedAuthor = await author.save();
+    const newAuthor = await author.save();
 
     const categories = req.body.categories.map(categoryTitle => new Category({ title: categoryTitle }));
     const savedCategories = await Category.insertMany(categories);
 
     const book = new Book({
       title: req.body.bookTitle,
-      author: savedAuthor._id,
+      author: newAuthor._id,
       categories: savedCategories.map(category => category._id)
     });
 
-    const savedBook = await book.save();
-    res.json(savedBook);
+    const newBook = await book.save();
+    res.json(newBook);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
