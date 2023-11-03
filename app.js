@@ -60,6 +60,30 @@ app.post("/api/author", (req, res) => {
     );
 });
 
+app.post("/api/category", (req, res) => {
+  let newCategory = new Category({
+    type: req.body.type,
+    
+  });
+
+  newCategory
+    .save(newCategory)
+    .then(() =>
+      res.status(201).json({
+        model: newCategory,
+        message: "Category Added !",
+      })
+    )
+    .catch((error) =>
+      res.status(400).json({
+        error: error.message,
+        message: "Invalid data !!!",
+      })
+    );
+});
+
+
+
 
 app.post('/api/books', async (req, res) => {
   try {
@@ -91,7 +115,7 @@ app.post('/api/books', async (req, res) => {
 
 // get all books
 app.get("/api/books", (req, res) => {
-  Book.find().populate('author')
+  Book.find().populate('Author')
     .then((books) =>
       res.status(200).json({
         model: books,
@@ -108,7 +132,7 @@ app.get("/api/books", (req, res) => {
 
 // get a book by id
 app.get("/api/books/:id", (req, res) => {
-  Book.findOne({ _id: req.params.id }).populate('author')
+  Book.findOne({ _id: req.params.id }).populate('Author')
     .then((book) => {
       if (!book) {
         res.status(404).json({
