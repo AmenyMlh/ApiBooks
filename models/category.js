@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const categorySchema = new mongoose.Schema({
   title: {
     type: String,
-    enum: ['Horror', 'Mystery', /* Autres catégories ici */],
+    enum: ['Horror', 'Mystery'],
     required: true
   }
 });

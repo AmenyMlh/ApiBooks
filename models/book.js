@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+//const idValidator = require('mongoose-id-validator')
+
 const {Schema} = mongoose;
 const bookSchema = new mongoose.Schema({
   title: String,
@@ -12,6 +14,10 @@ const bookSchema = new mongoose.Schema({
     ref: 'Category'
   }]
 });
+bookSchema.statics.findByAuthor = function (authorId, cb) {
+  return this.find({ author: authorId }, cb);
+};
+//bookSchema.plugin(idValidator);
 
 const Book = mongoose.model('Book', bookSchema);
 
