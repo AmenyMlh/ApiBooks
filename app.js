@@ -7,6 +7,7 @@ const User = require("./models/user")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
 const app = express();
+const Joi = require('./middlewares/joi');
 
 app.use(express.json());
 
@@ -85,31 +86,33 @@ app.post("/api/category", (req, res) => {
     );
 });
 
-
-
-
-app.post('/api/books', async (req, res) => {
+app.post('/api/books', Joi.validateBook, async (req, res) => {
   try {
     const authorId = req.body.author;
+    const authorBooks = await Book.find({ author: authorId });
+
+    if (authorBooks.length > 0) {
+      const bk = new Book(req.body);
+      await bk.validate();
+    
+      const savedBook = await bk.save();
+      res.status(201).json({
+        model: savedBook,
+        message: "Book created",
+      });
+
     /*const existingAuthor = await Author.findById(authorId);
     console.log(authorId)
 
     if (!existingAuthor) {
       return res.status(404).json({ error: "Author not found" });
     }*/
-    
-    const savedCategories = req.body.categories
+  } else {
+   
+    res.status(400).json({ error: "The author doesn't have other books" })
 
-    const book = new Book({
-      title: req.body.bookTitle,
-      //author: existingAuthor._id,
-      author: authorId,
-      categories: savedCategories
-    });
-
-    const newBook = await book.save();
-    res.json(newBook);
-  } catch (error) {
+ } 
+}catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
@@ -188,34 +191,30 @@ app.delete("/api/books/:id", (req, res) => {
 });
 
 
-app.post('/api/signup', (req, res) => {
-  bcrypt
-  .hash(req.body.password, 10)
-  .then((hash) => {
-   const user = new User({
-       firstName: req.body.firstName,
-       lastName : req.body.lastName,
-       role : req.body.role,
-       email: req.body.email,
-       password: hash
-   })
-   console.log(user.toPublic())
-// console.log(user.toPublic())
-   user.save()
-   
-   .then((response) => {
-      //  const n = response.toObject()
-       const newUser=response.toPublic()
-       
-       //delete newUser.password
-       res.status(201).json({
-           model: newUser,
-           message: "User created",
-       })
-   })
-   .catch((error) => res.status(400).json({error : error.message}))
-  })
-  .catch((error) => res.status(500).json({error : error.message}))
+
+app.post('/api/signup', Joi.validateSignUp, async (req, res) => {
+  try {
+  const hashedPassword = await bcrypt.hash(req.body.password);
+
+    const user = new User({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      role: req.body.role,
+      email: req.body.email,
+      password: hashedPassword,
+    });
+
+    const savedUser = await user.save();
+    const newUser = savedUser.toPublic();
+
+    res.status(201).json({
+      model: newUser,
+      message: "User created",
+    });
+  } 
+  catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 })
 
 
@@ -251,7 +250,6 @@ app.get('/api/books/author/:id', async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la récupération des livres par auteur.' });
   }
 });
-
 
 
 

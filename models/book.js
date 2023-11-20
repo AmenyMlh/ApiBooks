@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-//const idValidator = require('mongoose-id-validator')
+const Joi = require('joi')
 
 const {Schema} = mongoose;
 const bookSchema = new mongoose.Schema({
@@ -14,10 +14,11 @@ const bookSchema = new mongoose.Schema({
     ref: 'Category'
   }]
 });
-bookSchema.statics.findByAuthor = function (authorId, cb) {
-  return this.find({ author: authorId }, cb);
-};
-//bookSchema.plugin(idValidator);
+
+bookSchema.path('title').validate({
+  validator: (value) => Joi.string().required().validate(value).error === undefined,
+  message: 'Le titre est requis et doit être une chaîne de caractères.',
+});
 
 const Book = mongoose.model('Book', bookSchema);
 

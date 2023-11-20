@@ -1,5 +1,7 @@
 var mongoose = require('mongoose');
 const opts = { toObject: { virtuals: true },toJSON: { virtuals: true } };
+const uniqueValidator = require('mongoose-unique-validator')
+
 var userSchema = mongoose.Schema({
     firstName : {type : String,required : true},
     lastName : {type : String,required : true},
@@ -26,4 +28,5 @@ userSchema.methods.toPublic = function () {
     return userObject;
 }
 
+userSchema.plugin(uniqueValidator)
 module.exports = mongoose.model('User', userSchema);
