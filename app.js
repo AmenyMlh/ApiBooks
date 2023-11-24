@@ -16,6 +16,8 @@ mongoose
   .then(() => console.log("Connexion a MongoDb réussie !!"))
   .catch(() => console.log("Connexion a MongoDB échouée !!!!!!"));
 
+console.log(mongoose.version); 
+
 //add a book
 /*app.post("/api/books", (req, res) => {
   let newBook = new Book({
@@ -192,7 +194,7 @@ app.delete("/api/books/:id", (req, res) => {
 
 
 
-app.post('/api/signup', Joi.validateSignUp, async (req, res) => {
+/*app.post('/api/signup', Joi.validateSignUp, async (req, res) => {
   try {
   const hashedPassword = await bcrypt.hash(req.body.password);
 
@@ -215,7 +217,7 @@ app.post('/api/signup', Joi.validateSignUp, async (req, res) => {
   catch (error) {
     res.status(500).json({ error: error.message });
   }
-})
+})*/
 
 
 app.post('/api/login', (req, res) => {
